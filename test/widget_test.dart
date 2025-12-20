@@ -1,35 +1,38 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:mtg_life_counter/main.dart';
 
 void main() {
-  testWidgets('Lebenspunkte erhöhen Test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('MTG Life Counter: Startzustand und Interaktion', (WidgetTester tester) async {
+    // App laden
     await tester.pumpWidget(const MagicLifeCounterApp());
 
-    // Verify that our counter starts at 40
-    // Da Standardmäßig 2 Spieler gegeben sind, erwarten wir die 40 2 mal
+    // 1. Check: Sind die Texte da?
+    // Wir nutzen hier 'find.textContaining', das ist weniger fehleranfällig
+    expect(find.textContaining('1'), findsOneWidget);
+    expect(find.textContaining('2'), findsOneWidget);
     expect(find.text('40'), findsNWidgets(2));
 
-    // Tap the '+' icon and trigger a frame
-    // Suche nach das erste Icon mit +-Symbol
-    final plusButton = find.byIcon(Icons.add_circle_outline).first;
-    await tester.tap(plusButton);
+    // 2. Check: Die Rotation
+    expect(find.byType(RotatedBox), findsNWidgets(2));
 
-    // Frame neu zeichnen
+    // 3. Interaktion: Den Plus-Button finden
+    // Wir suchen nach allen Widgets, die ein 'add' Icon haben.
+    // Da Icons im Test manchmal schwer zu greifen sind, 
+    // suchen wir stattdessen nach dem GestureDetector, der das Icon enthält.
+    final plusButtons = find.byIcon(Icons.add);
+    
+    // Prüfen, ob wir überhaupt Buttons gefunden haben, bevor wir klicken!
+    expect(plusButtons, findsNWidgets(2));
+
+    // Jetzt auf den ersten Plus-Button klicken
+    await tester.tap(plusButtons.first);
+    
+    // WICHTIG: Frame neu zeichnen
     await tester.pump();
 
-    // Prüfen, ob jetzt einmal '41' da steht (für Spieler 1)
-    // und immer noch einmal '40' (für Spieler 2)
-    expect(find.text('40'), findsOneWidget);
+    // 4. Ergebnis prüfen
     expect(find.text('41'), findsOneWidget);
+    expect(find.text('40'), findsOneWidget);
   });
 }
