@@ -11,20 +11,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mtg_life_counter/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('Lebenspunkte erhöhen Test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MagicLifeCounterApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verify that our counter starts at 40
+    // Da Standardmäßig 2 Spieler gegeben sind, erwarten wir die 40 2 mal
+    expect(find.text('40'), findsNWidgets(2));
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    // Tap the '+' icon and trigger a frame
+    // Suche nach das erste Icon mit +-Symbol
+    final plusButton = find.byIcon(Icons.add_circle_outline).first;
+    await tester.tap(plusButton);
+
+    // Frame neu zeichnen
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Prüfen, ob jetzt einmal '41' da steht (für Spieler 1)
+    // und immer noch einmal '40' (für Spieler 2)
+    expect(find.text('40'), findsOneWidget);
+    expect(find.text('41'), findsOneWidget);
   });
 }
