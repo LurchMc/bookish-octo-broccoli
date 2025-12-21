@@ -49,76 +49,86 @@ class LifeCounterScreen extends StatefulWidget {
 }
 
 class _LifeCounterScreenState extends State<LifeCounterScreen> {
-  // Unsere Liste der aktuell aktiven Spieler
   List<PlayerData> players = [];
 
+  // --- 1. Logik-Methoden (initState, _setupPlayers etc.) ---
   @override
   void initState() {
     super.initState();
-    _setupPlayers(4); // Wir starten standardmäßig mal mit 4 Spielern
+    _setupPlayers(3); // Beispielhaft mit 3 Spielern starten
   }
 
   void _setupPlayers(int count) {
     setState(() {
-      players = List.generate(count, (index) {
-        // Logik für die Rotation: 
-        // In einem 4er Grid schauen die oberen nach "oben", die unteren nach "unten"
-        // Für den Anfang lassen wir sie alle mal bei 1 oder 3 (seitlich), wie gehabt.
+      players = List.generate(count, (index){
         return PlayerData(
-          id: index + 1,
-          rotation: (index % 2 == 0) ? 1 : 3, 
+          id: index +1,
+          rotation: (index % 2 == 0) ? 1 : 3
         );
       });
-    });
+    }
+    );  
   }
 
+  // 2. Die HAUPT-Build-Methode
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.black,
-    appBar: AppBar(
-      title: const Text('MTG Life Counter'),
-      actions: [
-        PopupMenuButton<int>(
-            icon: const Icon(Icons.group_add),
-            onSelected: (count) => _setupPlayers(count),
-            itemBuilder: (context) => [2, 3, 4, 5, 6].map((int n) {
-              return PopupMenuItem<int>(value: n, child: Text('$n Spieler'));
-            }).toList(),
-          ),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // Hier rufen wir die Hilfsmethoden auf
+          if (players.length == 2) return _buildDuelLayout();
+          if (players.length == 3) return _buildBossLayout(3);
+          if (players.length == 5) return _buildBossLayout(5);
+          return _buildStandardGrid(constraints);
+        },
+      ),
+    );
+  }
+
+  // --- 3. Die HILFS-Methoden (Implementierung) ---
+  // Diese stehen UNTER der build-Methode, aber noch VOR der letzten Klammer der Klasse.
+
+  Widget _buildDuelLayout() {
+    return Row(
+      children: [
+        Expanded(child: PlayerCard(player: players[0])),
+        Container(width: 2, color: Colors.grey[800]),
+        Expanded(child: PlayerCard(player: players[1])),
       ],
-    ),
-    body: LayoutBuilder(
-      builder: (context, constraints) {
-        // Wir holen uns die Gesamtmaße des verfügbaren Bildschirms
-        final double screenWidth = constraints.maxWidth;
-        final double screenHeight = constraints.maxHeight;
+    );
+  }
 
-        // Bestimme Spalten (Columns) und Zeilen (Rows) basierend auf Spielerzahl
-        int crossAxisCount = players.length <= 2 ? 1 : (players.length <= 4 ? 2 : 3);
-        int rowCount = (players.length / crossAxisCount).ceil();
+  Widget _buildBossLayout(int totalPlayers) {
+    return Row(
+      children: [
+        // kleine Kacheln
+        Expanded(
+          child: _buildStandardGrid(null, customCount: totalPlayers - 1),
+        ),
+        // Trennlinie
+        Container(width: 2, color: Colors.amberAccent.withOpacity(0.3)),
+        // Große Kachel
+        Expanded(
+          child: PlayerCard(player: players.last),
+        ),
+      ],
+    );
+  }
 
-        // Berechne die perfekte Breite und Höhe für jede Kachel
-        final double itemWidth = screenWidth / crossAxisCount;
-        final double itemHeight = screenHeight / rowCount;
+  Widget _buildStandardGrid(BoxConstraints? constraints, {int? customCount}) {
+    int count = customCount ?? players.length;
+    return GridView.builder(
+      itemCount: count,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: count <= 2 ? 1 : 2,
+        childAspectRatio: 1.0,
+      ),
+      itemBuilder: (context, index) => PlayerCard(player: players[index]),
+    );
+  }
 
-        return GridView.builder(
-          physics: const NeverScrollableScrollPhysics(), // Verhindert Scrollen
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            childAspectRatio: itemWidth / itemHeight, // Das Geheimnis für die Passform!
-          ),
-          itemCount: players.length,
-          itemBuilder: (context, index) {
-            return PlayerCard(
-              player: players[index],
-            );
-          },
-        );
-      },
-    ),
-  );
-}
 }
 
 // --- Das Spieler-Kachel-Widget ---
