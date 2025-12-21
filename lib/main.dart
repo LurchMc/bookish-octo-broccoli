@@ -12,6 +12,20 @@ void main() {
   runApp(const MagicLifeCounterApp());
 }
 
+class PlayerData {
+  int id;
+  int life;
+  Color color;
+  int rotation;
+
+  PlayerData({
+    required this.id,
+    this.life = 40,
+    this.color = const Color(0xFF263238),
+    required this.rotation,
+  });
+}
+
 class MagicLifeCounterApp extends StatelessWidget {
   const MagicLifeCounterApp({super.key});
 
@@ -35,33 +49,60 @@ class LifeCounterScreen extends StatefulWidget {
 }
 
 class _LifeCounterScreenState extends State<LifeCounterScreen> {
+  // Unsere Liste der aktuell aktiven Spieler
+  List<PlayerData> players = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _setupPlayers(4); // Wir starten standardmäßig mal mit 4 Spielern
+  }
+
+  void _setupPlayers(int count) {
+    setState(() {
+      players = List.generate(count, (index) {
+        // Logik für die Rotation: 
+        // In einem 4er Grid schauen die oberen nach "oben", die unteren nach "unten"
+        // Für den Anfang lassen wir sie alle mal bei 1 oder 3 (seitlich), wie gehabt.
+        return PlayerData(
+          id: index + 1,
+          rotation: (index % 2 == 0) ? 1 : 3, 
+        );
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Row(
-        children: [
-          // Linke Hälfte: Spieler 1
-          Expanded(
-            child: PlayerCard(
-              playerNumber: 1,
-              rotation: 1, // 90 Grad Drehung
-              cardColor: Colors.blueGrey[900]!,
-            ),
-          ),
-          
-          // Trennlinie in der Mitte
-          Container(width: 2, color: Colors.grey[800]),
-          
-          // Rechte Hälfte: Spieler 2
-          Expanded(
-            child: PlayerCard(
-              playerNumber: 2,
-              rotation: 3, // 270 Grad Drehung (gegenüberliegend)
-              cardColor: Colors.redAccent.withOpacity(0.1),
-            ),
+      // Ein kleiner Button oben, um die Spieleranzahl zu wählen
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: const Text('MTG Life Counter'),
+        actions: [
+          PopupMenuButton<int>(
+            icon: const Icon(Icons.group_add),
+            onSelected: (count) => _setupPlayers(count),
+            itemBuilder: (context) => [2, 3, 4, 5, 6].map((int n) {
+              return PopupMenuItem<int>(value: n, child: Text('$n Spieler'));
+            }).toList(),
           ),
         ],
+      ),
+      body: GridView.builder(
+        padding: const EdgeInsets.all(4),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: players.length <= 2 ? 1 : 2, // 1 Spalte bei 2 Spielern, sonst 2
+          childAspectRatio: players.length <= 2 ? 1.5 : 0.8,
+        ),
+        itemCount: players.length,
+        itemBuilder: (context, index) {
+          return PlayerCard(
+            key: ValueKey(players[index].id), // Wichtig für Flutter beim Neuzeichnen
+            player: players[index],
+          );
+        },
       ),
     );
   }
@@ -69,76 +110,51 @@ class _LifeCounterScreenState extends State<LifeCounterScreen> {
 
 // --- Das Spieler-Kachel-Widget ---
 class PlayerCard extends StatefulWidget {
-  final int playerNumber;
-  final int rotation;
-  final Color cardColor;
-
-  const PlayerCard({
-    super.key,
-    required this.playerNumber,
-    required this.rotation,
-    required this.cardColor,
-  });
+  final PlayerData player;
+  const PlayerCard({super.key, required this.player});
 
   @override
   State<PlayerCard> createState() => _PlayerCardState();
 }
 
 class _PlayerCardState extends State<PlayerCard> {
-  int life = 40;
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: widget.cardColor,
+      margin: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: widget.player.color,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: RotatedBox(
-        quarterTurns: widget.rotation,
-        child: Stack( // Stack erlaubt es, Elemente übereinander zu legen
+        quarterTurns: widget.player.rotation,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Spieler-Nummer im Hintergrund oder oben
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: Text(
-                  'SPIELER ${widget.playerNumber}',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.5),
-                    letterSpacing: 2,
-                  ),
-                ),
-              ),
+            Text('SPIELER ${widget.player.id}'),
+            Text(
+              '${widget.player.life}',
+              style: const TextStyle(fontSize: 70, fontWeight: FontWeight.bold),
             ),
-            
-            // Haupt-Inhalt: Lebenspunkte und Buttons
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '$life',
-                    style: const TextStyle(
-                      fontSize: 100, // Schön groß für die kurze Seite
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildActionButton(Icons.remove, () => setState(() => life--)),
-                      const SizedBox(width: 40),
-                      _buildActionButton(Icons.add, () => setState(() => life++)),
-                    ],
-                  ),
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.remove_circle_outline, size: 40),
+                  onPressed: () => setState(() => widget.player.life--),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline, size: 40),
+                  onPressed: () => setState(() => widget.player.life++),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
   }
+}
 
   // Hilfs-Funktion für die Buttons, um Code-Wiederholung zu vermeiden
   Widget _buildActionButton(IconData icon, VoidCallback onPressed) {
@@ -154,4 +170,3 @@ class _PlayerCardState extends State<PlayerCard> {
       ),
     );
   }
-}
