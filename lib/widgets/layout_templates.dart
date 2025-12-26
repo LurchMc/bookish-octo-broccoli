@@ -24,22 +24,68 @@ class LayoutTemplates {
     );
   }
 
-  static Widget _buildBossLayout(List<PlayerData> players, VoidCallback onUpdate) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            children: [
-              for (int i = 0; i < players.length - 1; i++)
-                Expanded(child: PlayerCard(player: players[i], forcedRotation: 2, onChanged: onUpdate, accentColor: Colors.grey,)),
-            ],
-          ),
+static Widget _buildBossLayout(List<PlayerData> players, VoidCallback onUpdate) {
+  return Row(
+    children: [
+      // LINKE SEITE: Die Herausforderer
+      Expanded(
+        flex: 1,
+        child: players.length <= 3 
+          ? _buildChallengers3(players, onUpdate) // Layout für 3 Spieler
+          : _buildChallengers5(players, onUpdate), // Layout für 5 Spieler
+      ),
+
+      // Trennlinie
+      Container(width: 2, color: Colors.amberAccent.withOpacity(0.4)),
+
+      // RECHTE SEITE: Der Boss
+      Expanded(
+        flex: 1,
+        child: PlayerCard(
+          player: players.last,
+          forcedRotation: 3,
+          onChanged: onUpdate, accentColor: Colors.grey,
         ),
-        Container(width: 2, color: Colors.amberAccent.withOpacity(0.5)),
-        Expanded(child: PlayerCard(player: players.last, forcedRotation: 0, onChanged: onUpdate, accentColor: Colors.grey,)),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
+// Hilfslayout für 3 Spieler (Herausforderer untereinander, entgegengesetzt)
+static Widget _buildChallengers3(List<PlayerData> players, VoidCallback onUpdate) {
+  return Column(
+    children: [
+      Expanded(child: PlayerCard(player: players[0], forcedRotation: 2, onChanged: onUpdate, accentColor: Colors.grey,)),
+      Expanded(child: PlayerCard(player: players[1], forcedRotation: 0, onChanged: onUpdate, accentColor: Colors.grey,)),
+    ],
+  );
+}
+
+// Hilfslayout für 5 Spieler (2x2 Gitter, gegenüberliegend)
+static Widget _buildChallengers5(List<PlayerData> players, VoidCallback onUpdate) {
+  return Column(
+    children: [
+      // Obere Reihe (Spieler 1 & 2 schauen nach "oben" / Weg vom Boss)
+      Expanded(
+        child: Row(
+          children: [
+            Expanded(child: PlayerCard(player: players[0], forcedRotation: 2, onChanged: onUpdate, accentColor: Colors.grey,)),
+            Expanded(child: PlayerCard(player: players[1], forcedRotation: 2, onChanged: onUpdate, accentColor: Colors.grey,)),
+          ],
+        ),
+      ),
+      // Untere Reihe (Spieler 3 & 4 schauen nach "unten" / Weg vom Boss)
+      Expanded(
+        child: Row(
+          children: [
+            Expanded(child: PlayerCard(player: players[2], forcedRotation: 0, onChanged: onUpdate, accentColor: Colors.grey,)),
+            Expanded(child: PlayerCard(player: players[3], forcedRotation: 0, onChanged: onUpdate, accentColor: Colors.grey,)),
+          ],
+        ),
+      ),
+    ],
+  );
+}
 
   static Widget _buildStandardGrid(List<PlayerData> players, BoxConstraints constraints, VoidCallback onUpdate) {
     int crossAxisCount = players.length <= 4 ? 2 : 3;
