@@ -17,9 +17,9 @@ class LayoutTemplates {
   static Widget _buildDuelLayout(List<PlayerData> players, VoidCallback onUpdate) {
     return Row(
       children: [
-        Expanded(child: PlayerCard(player: players[0], onChanged: onUpdate)),
+        Expanded(child: PlayerCard(player: players[0], onChanged: onUpdate, accentColor: Colors.grey,)),
         Container(width: 1, color: Colors.white24),
-        Expanded(child: PlayerCard(player: players[1], onChanged: onUpdate)),
+        Expanded(child: PlayerCard(player: players[1], onChanged: onUpdate, accentColor: Colors.grey,)),
       ],
     );
   }
@@ -31,12 +31,12 @@ class LayoutTemplates {
           child: Column(
             children: [
               for (int i = 0; i < players.length - 1; i++)
-                Expanded(child: PlayerCard(player: players[i], forcedRotation: 2, onChanged: onUpdate)),
+                Expanded(child: PlayerCard(player: players[i], forcedRotation: 2, onChanged: onUpdate, accentColor: Colors.grey,)),
             ],
           ),
         ),
         Container(width: 2, color: Colors.amberAccent.withOpacity(0.5)),
-        Expanded(child: PlayerCard(player: players.last, forcedRotation: 0, onChanged: onUpdate)),
+        Expanded(child: PlayerCard(player: players.last, forcedRotation: 0, onChanged: onUpdate, accentColor: Colors.grey,)),
       ],
     );
   }
@@ -65,7 +65,7 @@ class LayoutTemplates {
         mainAxisSpacing: 2,
         crossAxisSpacing: 2,
       ),
-      itemBuilder: (context, index) => PlayerCard(player: players[index], onChanged: onUpdate),
+      itemBuilder: (context, index) => PlayerCard(player: players[index], onChanged: onUpdate, accentColor: Colors.grey,),
     );
   }
 }

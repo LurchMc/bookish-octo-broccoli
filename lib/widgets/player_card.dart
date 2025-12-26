@@ -5,11 +5,13 @@ class PlayerCard extends StatelessWidget {
   final PlayerData player;
   final int? forcedRotation;
   final VoidCallback onChanged;
+  final Color accentColor;
 
   const PlayerCard({
     super.key,
     required this.player,
     required this.onChanged,
+    required this.accentColor,
     this.forcedRotation,
   });
 
@@ -20,7 +22,7 @@ class PlayerCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: player.color,
+        color: accentColor,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.white10),
       ),
