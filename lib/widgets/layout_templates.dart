@@ -11,6 +11,7 @@ class LayoutTemplates {
     final int count = players.length;
     if (count == 2) return _buildDuelLayout(players, onUpdate);
     if (count == 3 || count == 5) return _buildBossLayout(players, onUpdate);
+    if (count == 6) return _buildSixPlayerLayout(players, constraints, onUpdate);
     return _buildStandardGrid(players, constraints, onUpdate);
   }
 
@@ -114,4 +115,41 @@ static Widget _buildChallengers5(List<PlayerData> players, VoidCallback onUpdate
       itemBuilder: (context, index) => PlayerCard(player: players[index], onChanged: onUpdate, accentColor: Colors.grey,),
     );
   }
+}
+
+Widget _buildSixPlayerLayout(List<PlayerData> players, BoxConstraints constraints, VoidCallback onUpdate) {
+  return Column(
+    children: [
+      // OBERE REIHE (3 Spieler)
+      Expanded(
+        child: Row(
+          children: [
+            // Spieler 1: Schaut nach links
+            Expanded(child: PlayerCard(player: players[0], forcedRotation: 2, onChanged: onUpdate, accentColor: Colors.grey,)),
+            // Spieler 2: Schaut "nach oben" (180 Grad gedreht zum User)
+            Expanded(child: PlayerCard(player: players[1], forcedRotation: 2, onChanged: onUpdate, accentColor: Colors.grey,)),
+            // Spieler 3: Schaut nach rechts
+            Expanded(child: PlayerCard(player: players[2], forcedRotation: 2, onChanged: onUpdate, accentColor: Colors.grey,)),
+          ],
+        ),
+      ),
+      
+      // Mittlere Trennlinie (optional)
+      Container(height: 1, color: Colors.white10),
+
+      // UNTERE REIHE (3 Spieler)
+      Expanded(
+        child: Row(
+          children: [
+            // Spieler 4: Schaut nach links
+            Expanded(child: PlayerCard(player: players[3], forcedRotation: 0, onChanged: onUpdate, accentColor: Colors.grey,)),
+            // Spieler 5: Schaut normal (0 Grad)
+            Expanded(child: PlayerCard(player: players[4], forcedRotation: 0, onChanged: onUpdate, accentColor: Colors.grey,)),
+            // Spieler 6: Schaut nach rechts
+            Expanded(child: PlayerCard(player: players[5], forcedRotation: 0, onChanged: onUpdate, accentColor: Colors.grey,)),
+          ],
+        ),
+      ),
+    ],
+  );
 }
