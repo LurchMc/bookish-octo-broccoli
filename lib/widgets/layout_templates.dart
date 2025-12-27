@@ -124,11 +124,8 @@ Widget _buildSixPlayerLayout(List<PlayerData> players, BoxConstraints constraint
       Expanded(
         child: Row(
           children: [
-            // Spieler 1: Schaut nach links
             Expanded(child: PlayerCard(player: players[0], forcedRotation: 2, onChanged: onUpdate, accentColor: Colors.grey,)),
-            // Spieler 2: Schaut "nach oben" (180 Grad gedreht zum User)
             Expanded(child: PlayerCard(player: players[1], forcedRotation: 2, onChanged: onUpdate, accentColor: Colors.grey,)),
-            // Spieler 3: Schaut nach rechts
             Expanded(child: PlayerCard(player: players[2], forcedRotation: 2, onChanged: onUpdate, accentColor: Colors.grey,)),
           ],
         ),
@@ -141,11 +138,8 @@ Widget _buildSixPlayerLayout(List<PlayerData> players, BoxConstraints constraint
       Expanded(
         child: Row(
           children: [
-            // Spieler 4: Schaut nach links
             Expanded(child: PlayerCard(player: players[3], forcedRotation: 0, onChanged: onUpdate, accentColor: Colors.grey,)),
-            // Spieler 5: Schaut normal (0 Grad)
             Expanded(child: PlayerCard(player: players[4], forcedRotation: 0, onChanged: onUpdate, accentColor: Colors.grey,)),
-            // Spieler 6: Schaut nach rechts
             Expanded(child: PlayerCard(player: players[5], forcedRotation: 0, onChanged: onUpdate, accentColor: Colors.grey,)),
           ],
         ),
