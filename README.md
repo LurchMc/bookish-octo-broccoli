@@ -1,6 +1,12 @@
 # mtg_life_counter
 
-A new Flutter project.
+A Life-Counter for Magic the Gathering. Till now only 2-6 Player Layout and trackable Commander-Damage.
+
+Roadmap:
+- Counters (Toxic, Mana etc.)
+- Markers (Aristocrat etc.)
+- More Layouts (Mirrored Layouts)
+- Wakelock 
 
 ## Getting Started
 
